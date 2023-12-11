@@ -1,0 +1,6 @@
+beautifulsoup4==4.8.2
+chromedriver_binary==122.0.6177.0.0
+Flask==3.0.0
+Requests==2.31.0
+selenium==4.16.0
+webdriver_manager==4.0.1
