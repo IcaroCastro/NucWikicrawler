@@ -29,7 +29,11 @@ class Webcrawler:
         options = ChromeOptions()
         options.headless = True
         print(chromedriver_binary.chromedriver_filename)
-        self.webdriver = Chrome(executable_path=chromedriver_binary.chromedriver_filename, options=chrome_options)
+        self.webdriver = Chrome(
+            service=Service(
+                executable_path=chromedriver_binary.chromedriver_filename
+            ), 
+            options=chrome_options)
 
         self.tables = list()
         try:
