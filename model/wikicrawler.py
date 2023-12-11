@@ -29,6 +29,7 @@ class Webcrawler:
         options = ChromeOptions()
         options.headless = True
         print(chromedriver_binary.chromedriver_filename)
+        ##
         self.webdriver = Chrome(
             service=Service(
                 executable_path=chromedriver_binary.chromedriver_filename
