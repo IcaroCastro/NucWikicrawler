@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import chromedriver_binary
 import csv
+import requests
 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -29,7 +30,7 @@ class Webcrawler:
         options = ChromeOptions()
         options.headless = True
         print(chromedriver_binary.chromedriver_filename)
-        ##
+        
         self.webdriver = Chrome(
             service=Service(
                 executable_path=chromedriver_binary.chromedriver_filename
@@ -39,26 +40,35 @@ class Webcrawler:
         self.tables = list()
         try:
             # Método que acessa a página da Wikipedia
-            self.webdriver.get("https://en.wikipedia.org/wiki/List_of_commercial_nuclear_reactors")
+            # self.webdriver.get("https://en.wikipedia.org/wiki/List_of_commercial_nuclear_reactors")
+            teste = requests.get(
+                'https://en.wikipedia.org/wiki/List_of_commercial_nuclear_reactors'
+            )
+            teste_response = teste.text
+            with open("teste.html", "w+", encoding="utf-8") as f:
+                f.write(teste_response)
+                
+            self.webdriver.execute_script("document.write(arguments[0]);", teste_response)
+            
 
             # Coleta dos países presentes na página
             self.countries = [item.text for item in self.webdriver.find_elements(By.CLASS_NAME, "mw-headline")[:-4]]
 
             # Acesso e coleta dos dados de cada tabela
             for index in range(1, len(self.countries) + 1):
-                print(f"Step: {steps}")
-                steps +=1
-                
                 table = self.webdriver.find_element(By.XPATH, self.__default_xpath.replace("%%", str(index)))
                 rows = table.find_elements(By.XPATH, "./tbody/tr")
                 tlist = self.format_table_list(rows)
                 self.tables.append(tlist)
+                
+                print(f"Step: {steps}")
+                steps +=1
 
             # Montagem de uma lista com os dados completos de cada reator
             self.full_data = self.assemble_full_data()
 
             # Montagem do arquivo data.csv
-            self.assemble_csv_file("./data/data1")
+            self.assemble_csv_file("./data/data")
         finally:
 
             # Fechamento do navegador
@@ -75,6 +85,7 @@ class Webcrawler:
     # Método que realiza a refatoração das unidades de cada usina que não têm os dados completos.
     @staticmethod
     def include_plant_name(tlist: list[list]) -> list:
+        tlist.pop(0)
         if length := len(tlist[0]) > 9:
             tlist = [item[:9-length] for item in tlist]
         new_list = list()
